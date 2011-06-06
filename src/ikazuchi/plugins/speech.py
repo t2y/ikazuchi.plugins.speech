@@ -10,6 +10,8 @@ from ikazuchi.core.translator import TRANSLATE_API as API
 from ikazuchi.ikazuchi import (base_parser, subparsers)
 from ikazuchi.utils import get_command
 
+__version__ = "0.1.0"
+
 _MACOS_COMMANDS = ["afplay", "mpg123", "gst123", "mpg321"]
 _LINUX_COMMANDS = ["mpg123", "gst123", "mpg321"]
 _WINDOWS_COMMANDS = []
@@ -25,6 +27,8 @@ speech_parser.add_argument("-r", "--read", dest="read",
     metavar="READING TARGET FILE", help="read aloud target file")
 speech_parser.add_argument("-s", "--sentences", dest="sentences", nargs="+",
     metavar="SENTENCE", help=u"target sentences")
+speech_parser.add_argument("--version", action="version",
+    version="%(prog)s {0}".format(__version__))
 
 class Handler(BaseHandler):
     """
@@ -32,7 +36,8 @@ class Handler(BaseHandler):
     """
     def __init__(self, opts):
         self.api = opts.api
-        self.command = opts.command
+        self.command = opts.command if opts.command else \
+                            self._get_play_audio_command()
         self.encoding = opts.encoding
         self.sentences = opts.sentences
         self.read_file = opts.read
@@ -64,6 +69,7 @@ class Handler(BaseHandler):
         else:
             texts = orig_texts
         _trans = u"{0}({1}):".format("translate", self.api.title())
+        play_audio_method = self.get_play_audio_method()
         for num, text in enumerate(texts):
             if not self.quiet:
                 print self._encode(u"{0:25}{1}".format(
@@ -74,7 +80,7 @@ class Handler(BaseHandler):
                 api = api_method(text, self.lang, tmp)
                 _method = u"{0}({1}):".format(self.method_name, api)
                 print self._encode(u"{0:25}".format(_method))
-                self.play_audio(tmp.name)
+                play_audio_method(tmp.name)
 
     def _get_target_texts(self):
         texts = self.sentences
@@ -96,20 +102,23 @@ class Handler(BaseHandler):
         path_cmd = [path for cmd in commands for path in get_command(cmd)]
         return path_cmd[0] if path_cmd else None
 
-    def play_audio(self, file_name):
-        cmd = self.command if self.command else self._get_play_audio_command()
-        if cmd:
-            print "use command: {0}".format(cmd)
-            subprocess.call([cmd, file_name])
+    def get_play_audio_method(self):
+        if self.command:
+            print "use command: {0}".format(self.command)
+            return self.play_audio_with_command
         else:
-            play_audio_with_pyglet(file_name)
+            print "use pyglet"
+            return play_audio_with_pyglet
+
+    def play_audio_with_command(self, file_name):
+        # FIXME: wrong interface, consider later
+        subprocess.call([self.command, file_name])
 
 
 def play_audio_with_pyglet(file_name):
     import pyglet
     media = pyglet.media.load(file_name)
     if media.duration:
-        print "use pyglet"
         pyglet.clock.schedule_once(lambda d: pyglet.app.exit(), media.duration)
         media.play()
         pyglet.app.run()
