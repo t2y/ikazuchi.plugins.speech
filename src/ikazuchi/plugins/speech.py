@@ -93,44 +93,48 @@ class Handler(BaseHandler):
             commands = _WINDOWS_COMMANDS
         elif os_name in ("Linux", "FreeBSD"):
             commands = _LINUX_COMMANDS
-        return [path for cmd in commands for path in get_command(cmd)]
+        path_cmd = [path for cmd in commands for path in get_command(cmd)]
+        return path_cmd[0] if path_cmd else None
 
     def play_audio(self, file_name):
-        if self.command:
-            subprocess.call([self.command, file_name])
+        cmd = self.command if self.command else self._get_play_audio_command()
+        if cmd:
+            print "use command: {0}".format(cmd)
+            subprocess.call([cmd, file_name])
         else:
-            cmd = self._get_play_audio_command()
-            if cmd:
-                subprocess.call([cmd[0], file_name])
-            else:
-                play_audio_with_pyglet(file_name)
+            play_audio_with_pyglet(file_name)
 
-    def play_audio_with_pyglet(self, file_name):
-        import pyglet
-        media = pyglet.media.load(file_name, streaming=False)
+
+def play_audio_with_pyglet(file_name):
+    import pyglet
+    media = pyglet.media.load(file_name)
+    if media.duration:
+        print "use pyglet"
         pyglet.clock.schedule_once(lambda d: pyglet.app.exit(), media.duration)
         media.play()
         pyglet.app.run()
+    else:
+        print "Cannot play audio with pyglet"
 
-    def play_with_ossaudiodev(self, file_name):
-        import sys
-        import sndhdr
-        from contextlib import closing, nested
-        from ossaudiodev import open as oss_open
-        from wave import open as wave_open
-        file_info = sndhdr.what(file_name)
-        if not file_info or file_info[0] != "wav":
-            print "Not supported audio file type"
-            return
-        with nested(closing(wave_open(file_name, "rb")),
-                    closing(oss_open("w"))) as (wav, dev):
-            nc, sw, fr, nf, comptype, compname = wav.getparams()
-            try:
-                from ossaudiodev import (AFMT_S16_NE, AFMT_S16_BE, AFMT_S16_LE)
-            except ImportError:
-                AFMT_S16_NE = AFMT_S16_BE
-                if sys.byteorder == "little":
-                    AFMT_S16_NE = AFMT_S16_LE
-            dev.setparameters(AFMT_S16_NE, nc, fr)
-            data = wav.readframes(nf)
-            dev.write(data)
+def play_with_ossaudiodev(file_name):
+    import sys
+    import sndhdr
+    from contextlib import closing, nested
+    from ossaudiodev import open as oss_open
+    from wave import open as wave_open
+    file_info = sndhdr.what(file_name)
+    if not file_info or file_info[0] != "wav":
+        print "Not supported audio file type"
+        return
+    with nested(closing(wave_open(file_name, "rb")),
+                closing(oss_open("w"))) as (wav, dev):
+        nc, sw, fr, nf, comptype, compname = wav.getparams()
+        try:
+            from ossaudiodev import (AFMT_S16_NE, AFMT_S16_BE, AFMT_S16_LE)
+        except ImportError:
+            AFMT_S16_NE = AFMT_S16_BE
+            if sys.byteorder == "little":
+                AFMT_S16_NE = AFMT_S16_LE
+        dev.setparameters(AFMT_S16_NE, nc, fr)
+        data = wav.readframes(nf)
+        dev.write(data)
