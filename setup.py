@@ -20,6 +20,7 @@ CLASSIFIERS = [
     "Operating System :: POSIX",
     "Programming Language :: Python",
     "Topic :: Software Development",
+    "Topic :: Multimedia :: Sound/Audio :: Speech",
 ]
 
 setup(
@@ -39,7 +40,7 @@ setup(
      package_data={"": ["buildout.cfg"]},
      namespace_packages=["ikazuchi", "ikazuchi.plugins"],
      include_package_data=True,
-     install_requires=["distribute", "pyglet", "ikazuchi>=0.5.0"],
+     install_requires=["distribute", "pyglet", "ikazuchi>=0.5.1"],
      extras_require={
         "test": ["Nose", "pep8"],
      },
