@@ -10,8 +10,8 @@ from ikazuchi.core.translator import TRANSLATE_API as API
 from ikazuchi.ikazuchi import (base_parser, subparsers)
 from ikazuchi.utils import get_command
 
-_MACOS_COMMANDS   = ["afplay", "mpg123", "gst123", "mpg321"]
-_LINUX_COMMANDS   = ["mpg123", "gst123", "mpg321"]
+_MACOS_COMMANDS = ["afplay", "mpg123", "gst123", "mpg321"]
+_LINUX_COMMANDS = ["mpg123", "gst123", "mpg321"]
 _WINDOWS_COMMANDS = []
 
 # argument parser for speech
