@@ -92,7 +92,7 @@ Requirements
 ============
 
 * Python 2.6 or later
-* ikazuchi 0.5.1 or later
+* ikazuchi 0.5.2 or later
 * pyglet 1.1.4 or later
 * setuptools or distriubte
 
@@ -105,6 +105,10 @@ Apache License 2.0
 
 History
 =======
+
+0.1.1 (2011-06-11)
+------------------
+* fix a minor bug related to the default API name
 
 0.1.0 (2011-06-06)
 ------------------

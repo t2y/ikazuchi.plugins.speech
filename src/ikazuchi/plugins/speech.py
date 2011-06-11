@@ -10,7 +10,7 @@ from ikazuchi.core.translator import TRANSLATE_API as API
 from ikazuchi.ikazuchi import (base_parser, subparsers)
 from ikazuchi.utils import get_command
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 _MACOS_COMMANDS = ["afplay", "mpg123", "gst123", "mpg321"]
 _LINUX_COMMANDS = ["mpg123", "gst123", "mpg321"]
