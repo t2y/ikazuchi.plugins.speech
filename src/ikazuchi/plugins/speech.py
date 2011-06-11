@@ -35,7 +35,6 @@ class Handler(BaseHandler):
     Handler class for text-to-speech
     """
     def __init__(self, opts):
-        self.api = opts.api
         self.command = opts.command if opts.command else \
                             self._get_play_audio_command()
         self.encoding = opts.encoding
@@ -45,20 +44,21 @@ class Handler(BaseHandler):
         self.lang = opts.lang_from
         self.post = opts.post
         self.translator = API[opts.api](opts.lang_from, opts.lang_to, None)
+        self.api = opts.api.title() if opts.api else self.translator.api()
         if self.post:
             self.lang = opts.lang_to
-        if self.api == "google":
+        if self.api == "Google":
             self.method_name = "translate_tts"
-        elif self.api == "microsoft":
+        elif self.api == "Microsoft":
             self.method_name = "speak"
 
     def _encode(self, text):
         return text.encode(self.encoding[1])
 
     def _translate(self, texts):
-        if self.api == "google":
+        if self.api == "Google":
             api, translated = self.translator.translate(texts)
-        elif self.api == "microsoft":
+        elif self.api == "Microsoft":
             api, translated = self.translator.translate_array(texts)
         return translated
 
@@ -68,7 +68,7 @@ class Handler(BaseHandler):
             texts = self._translate(orig_texts)
         else:
             texts = orig_texts
-        _trans = u"{0}({1}):".format("translate", self.api.title())
+        _trans = u"{0}({1}):".format("translate", self.api)
         play_audio_method = self.get_play_audio_method()
         for num, text in enumerate(texts):
             if not self.quiet:
