@@ -106,6 +106,10 @@ Apache License 2.0
 History
 =======
 
+0.1.2 (2011-06-15)
+------------------
+* fix a critical bug related to encoding with "-s" option
+
 0.1.1 (2011-06-11)
 ------------------
 * fix a minor bug related to the default API name
