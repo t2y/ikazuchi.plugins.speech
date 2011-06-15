@@ -38,7 +38,7 @@ class Handler(BaseHandler):
         self.command = opts.command if opts.command else \
                             self._get_play_audio_command()
         self.encoding = opts.encoding
-        self.sentences = opts.sentences
+        self.sentences = [unicode(s, opts.encoding[0]) for s in opts.sentences]
         self.read_file = opts.read
         self.quiet = opts.quiet
         self.lang = opts.lang_from
@@ -86,7 +86,7 @@ class Handler(BaseHandler):
         texts = self.sentences
         if self.read_file:
             rf = get_and_check_file_access(self.read_file)
-            with codecs.open(rf, mode="r", encoding=self.encoding[1]) as f:
+            with codecs.open(rf, mode="r", encoding=self.encoding[0]) as f:
                 texts = [line.rstrip() for line in f if line.rstrip()]
         return texts
 
